@@ -194,7 +194,11 @@ void Game::spawnEnemy()
 
     float speed = ((rand() % (int)m_enemyConfig.SMAX - (int)m_enemyConfig.SMIN + 1)) + (int)m_enemyConfig.SMIN;
 
-    enemy->cTransform = std::make_shared<CTransform>(Vec2(posX,posY),Vec2(speed,speed),1);
+    Vec2 velocity = Vec2(genRandDir(),genRandDir());
+
+    velocity *= speed;
+
+    enemy->cTransform = std::make_shared<CTransform>(Vec2(posX,posY),velocity,1);
 
     enemy->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.L * m_windowConfig.FL);
 
@@ -261,20 +265,20 @@ void Game::sMovement()
     //player input-based movement:
     if(m_player->cInput->up && !m_player->cCollision->BColision.up)
     {
-        m_player->cTransform->velocity.y -= m_playerConfig.S;
+        m_player->cTransform->velocity.y = -1 * m_playerConfig.S;
 
     }
     if(m_player->cInput->down && !m_player->cCollision->BColision.down)
     {
-        m_player->cTransform->velocity.y += m_playerConfig.S;
+        m_player->cTransform->velocity.y = 1 * m_playerConfig.S;
     }
     if(m_player->cInput->right && !m_player->cCollision->BColision.right)
     {
-        m_player->cTransform->velocity.x += m_playerConfig.S;
+        m_player->cTransform->velocity.x = 1 * m_playerConfig.S;
     }
     if(m_player->cInput->left && !m_player->cCollision->BColision.left)
     {
-        m_player->cTransform->velocity.x -= m_playerConfig.S;
+        m_player->cTransform->velocity.x = -1 * m_playerConfig.S;
     }
 
     // movement for all entities:
@@ -470,6 +474,30 @@ void Game::sRender()
         // draw the entitys sf::CircleShape
         m_window.draw(e->cShape->circle);
     }
+
+    if(m_paused)
+    {
+        sf::RectangleShape pauseBox(sf::Vector2f(m_windowConfig.sW/3, m_windowConfig.sH/8));
+        pauseBox.setPosition(m_windowConfig.sW/2 - (m_windowConfig.sW/3)/2, m_windowConfig.sH/2 - (m_windowConfig.sH/8)/2);
+        pauseBox.setOutlineThickness(5);
+        pauseBox.setFillColor(sf::Color(128,128,128));
+
+        sf::Text pauseText;
+        pauseText.setString("Game Paused");
+        pauseText.setCharacterSize(24);
+        pauseText.setFont(m_font);
+
+        sf::FloatRect textRect = pauseText.getGlobalBounds();
+        float textX = pauseBox.getPosition().x + (pauseBox.getSize().x - textRect.width) / 2.0f;
+        float textY = pauseBox.getPosition().y + (pauseBox.getSize().y - textRect.height) / 2.0f;
+        pauseText.setPosition(textX, textY);
+        pauseText.Bold;
+
+        pauseText.setFillColor(sf::Color::Black);
+
+        m_window.draw(pauseBox);
+        m_window.draw(pauseText);
+    }
   
     // draw the ui last
     ImGui::SFML::Render(m_window);
@@ -563,4 +591,11 @@ float Game::genRandRGB()
     float colorVal = rand() % 255;
     //std::cout<< "genned colorVal: " << colorVal << "\n" << std::endl;
     return colorVal;
+}
+
+int Game::genRandDir()
+{
+    int randval = rand() % 2 + 1; 
+    int dir = (randval == 1)? 1 : -1;
+    return dir;
 }

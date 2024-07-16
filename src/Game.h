@@ -56,4 +56,5 @@ public:
     void sScore();
 
     float genRandRGB();
+    int genRandDir();
 };
