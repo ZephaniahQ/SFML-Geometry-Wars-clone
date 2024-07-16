@@ -7,6 +7,13 @@ Vec2::Vec2(float xin, float yin)
     :   x{xin}, y{yin} 
 {}
 
+void Vec2::normalize()
+    {
+    float len = this->length();
+    this->x /= len;
+    this->y /= len;
+}
+
 Vec2 Vec2::operator + (const Vec2 & rhs) const
 {
     return Vec2(x+rhs.x,y+rhs.y);

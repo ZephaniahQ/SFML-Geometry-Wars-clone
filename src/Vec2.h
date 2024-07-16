@@ -25,4 +25,5 @@ public:
 
     float length();
     float dist(const Vec2 & rhs) const;
+    void normalize();
 };

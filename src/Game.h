@@ -9,7 +9,7 @@
 
 struct WindowConfig { int sW, sH, FL; bool FS;};
 struct PlayerConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V; float S;};
-struct EnemyConfig  { int SR, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI; float SMIN, SMAX;};
+struct EnemyConfig  { int SR, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI, EMAX; float SMIN, SMAX;};
 struct BulletConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V, L; float S;};
 
 class Game
@@ -30,7 +30,8 @@ class Game
     bool                m_paused        = false;
 
     std::shared_ptr<Entity>     m_player;
-    id_t                        m_lastEnemySpawnTime;       
+    size_t                      m_enemyCount;
+    id_t                        m_lastEnemySpawnTime{};       
 
 public:
 
@@ -51,7 +52,8 @@ public:
     void sGUI();
     void sRender();
     void sUserInput();
-    void sKeyboardInput();
 
     void sScore();
+
+    float genRandRGB();
 };
