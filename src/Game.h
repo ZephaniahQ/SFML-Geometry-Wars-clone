@@ -26,12 +26,22 @@ class Game
     float               m_deltaTime;
     int                 m_score         = 0;
     int                 m_currentFrame  = 0;
+
     bool                m_running       = false;
     bool                m_paused        = false;
 
+    bool                m_runcollisions = true;
+    bool                m_runMovement   = true;
+    bool                m_runLifespan   = true;
+    bool                m_runEnemySpawn = true;
+    bool                m_runRender     = true;
+
+
     std::shared_ptr<Entity>     m_player;
+    std::shared_ptr<Entity>     m_powerCirc;
     size_t                      m_enemyCount;
-    id_t                        m_lastEnemySpawnTime{};       
+    size_t                      m_lastEnemySpawnTime{};     
+    size_t                      m_lastSpecialWeaponTime{};
 
 public:
 
@@ -43,7 +53,8 @@ public:
     void spawnEnemy();
     void spawnSmallEnemeis(std::shared_ptr<Entity> e);
     void spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & target);
-    void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
+    void spawnBullet(std::shared_ptr<Entity> entity, const float theta);
+    void spawnSpecialWeapon(std::shared_ptr<Entity> entity, const Vec2& target);
 
     void sMovement();
     void sLifespan();
@@ -52,9 +63,10 @@ public:
     void sGUI();
     void sRender();
     void sUserInput();
-
     void sScore();
-
+    
+    //helper functions:
     float genRandRGB();
     int genRandDir();
+    float deg2rad(float deg);
 };

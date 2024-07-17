@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 
 Game::Game(const std::string & config)
 {
@@ -11,9 +12,6 @@ Game::Game(const std::string & config)
 
 void Game::init(const std::string & path)
 {
-    // TODO read in config file here
-    //      use the premade PlayerConfig, EnemyConfig, BulletConfig variables here
-
     std::ifstream fin(path);
     srand(time(0));
 
@@ -27,11 +25,11 @@ void Game::init(const std::string & path)
         if(lnstart == "Window")
         {
             fin >> m_windowConfig.sW >> m_windowConfig.sH >> m_windowConfig.FL >> m_windowConfig.FS;
-            std::cout << "Loading Window config:\n"
-                << "sW: " << m_windowConfig.sW << "\n"
-                << "sH: " << m_windowConfig.sH << "\n"
-                << "FL: " << m_windowConfig.FL << "\n"
-                << "FS: " << m_windowConfig.FS << "\n";
+            // std::cout << "Loading Window config:\n"
+            //     << "sW: " << m_windowConfig.sW << "\n"
+            //     << "sH: " << m_windowConfig.sH << "\n"
+            //     << "FL: " << m_windowConfig.FL << "\n"
+            //     << "FS: " << m_windowConfig.FS << "\n";
         }
         else if(lnstart == "Font")
         {
@@ -39,17 +37,19 @@ void Game::init(const std::string & path)
             int size, R,G,B;
             fin >> name >> size >> R >> G >> B;
 
-            std::cout << "Loading Font config:\n"
-                << "Name: " << name << "\n"
-                << "Size: " << size << "\n"
-                << "R: " << R << "\n"
-                << "G: " << G << "\n"
-                << "B: " << B << "\n";
+            // std::cout << "Loading Font config:\n"
+            //     << "Name: " << name << "\n"
+            //     << "Size: " << size << "\n"
+            //     << "R: " << R << "\n"
+            //     << "G: " << G << "\n"
+            //     << "B: " << B << "\n";
 
             m_font.loadFromFile(name);
             m_text.setFont(m_font);
+            m_text.setString(std::to_string(m_score));
             m_text.setCharacterSize(size);
             m_text.setFillColor(sf::Color(R,G,B));
+            m_text.setPosition(0,0);
         }
         else if(lnstart == "Player")
         {
@@ -57,66 +57,65 @@ void Game::init(const std::string & path)
                 >> m_playerConfig.FG >> m_playerConfig.FB >> m_playerConfig.OR >> m_playerConfig.OG
                 >> m_playerConfig.OB >> m_playerConfig.OT >> m_playerConfig.V;
 
-            std::cout << "Loading Player config:\n"
-                << "SR: " << m_playerConfig.SR << "\n"
-                << "CR: " << m_playerConfig.CR << "\n"
-                << "S: " << m_playerConfig.S << "\n"
-                << "FR: " << m_playerConfig.FR << "\n"
-                << "FG: " << m_playerConfig.FG << "\n"
-                << "FB: " << m_playerConfig.FB << "\n"
-                << "OR: " << m_playerConfig.OR << "\n"
-                << "OG: " << m_playerConfig.OG << "\n"
-                << "OB: " << m_playerConfig.OB << "\n"
-                << "OT: " << m_playerConfig.OT << "\n"
-                << "V: " << m_playerConfig.V << "\n";
+            // std::cout << "Loading Player config:\n"
+            //     << "SR: " << m_playerConfig.SR << "\n"
+            //     << "CR: " << m_playerConfig.CR << "\n"
+            //     << "S: " << m_playerConfig.S << "\n"
+            //     << "FR: " << m_playerConfig.FR << "\n"
+            //     << "FG: " << m_playerConfig.FG << "\n"
+            //     << "FB: " << m_playerConfig.FB << "\n"
+            //     << "OR: " << m_playerConfig.OR << "\n"
+            //     << "OG: " << m_playerConfig.OG << "\n"
+            //     << "OB: " << m_playerConfig.OB << "\n"
+            //     << "OT: " << m_playerConfig.OT << "\n"
+            //     << "V: " << m_playerConfig.V << "\n";
         }
         else if(lnstart == "Enemy")
         {
             fin >> m_enemyConfig.SR >> m_enemyConfig.CR >> m_enemyConfig.SMIN >> m_enemyConfig.SMAX 
                 >> m_enemyConfig.OR >> m_enemyConfig.OG >> m_enemyConfig.OB   >> m_enemyConfig.OT 
-                >> m_enemyConfig.VMIN >> m_enemyConfig.VMAX >> m_enemyConfig.L >> m_enemyConfig.SI
-                >> m_enemyConfig.EMAX;
+                >> m_enemyConfig.VMIN >> m_enemyConfig.VMAX >> m_enemyConfig.L >> m_enemyConfig.SI;
 
-            std::cout << "Loading Enemy config:\n"
-                << "SR: " << m_enemyConfig.SR << "\n"
-                << "CR: " << m_enemyConfig.CR << "\n"
-                << "SMIN: " << m_enemyConfig.SMIN << "\n"
-                << "SMAX: " << m_enemyConfig.SMAX << "\n"
-                << "OR: " << m_enemyConfig.OR << "\n"
-                << "OG: " << m_enemyConfig.OG << "\n"
-                << "OB: " << m_enemyConfig.OB << "\n"
-                << "OT: " << m_enemyConfig.OT << "\n"
-                << "VMIN: " << m_enemyConfig.VMIN << "\n"
-                << "VMAX: " << m_enemyConfig.VMAX << "\n"
-                << "L: " << m_enemyConfig.L << "\n"
-                << "SI: " << m_enemyConfig.SI << "\n"
-                << "EMAX: " << m_enemyConfig.EMAX;
+            // std::cout << "Loading Enemy config:\n"
+            //     << "SR: " << m_enemyConfig.SR << "\n"
+            //     << "CR: " << m_enemyConfig.CR << "\n"
+            //     << "SMIN: " << m_enemyConfig.SMIN << "\n"
+            //     << "SMAX: " << m_enemyConfig.SMAX << "\n"
+            //     << "OR: " << m_enemyConfig.OR << "\n"
+            //     << "OG: " << m_enemyConfig.OG << "\n"
+            //     << "OB: " << m_enemyConfig.OB << "\n"
+            //     << "OT: " << m_enemyConfig.OT << "\n"
+            //     << "VMIN: " << m_enemyConfig.VMIN << "\n"
+            //     << "VMAX: " << m_enemyConfig.VMAX << "\n"
+            //     << "L: " << m_enemyConfig.L << "\n"
+            //     << "SI: " << m_enemyConfig.SI << "\n"
+            //     << "EMAX: " << m_enemyConfig.EMAX << "\n";
         }
         else if(lnstart == "Bullet")
         {
             fin >> m_bulletConfig.SR >> m_bulletConfig.CR >> m_bulletConfig.S >> m_bulletConfig.FR 
                 >> m_bulletConfig.FB >> m_bulletConfig.FG >> m_bulletConfig.OR >> m_bulletConfig.OG 
                 >> m_bulletConfig.OB >> m_bulletConfig.OT >> m_bulletConfig.V >> m_bulletConfig.L;
-            std::cout << "Loading Bullet config:\n"
-                << "SR: " << m_bulletConfig.SR << "\n"
-                << "CR: " << m_bulletConfig.CR << "\n"
-                << "S: " << m_bulletConfig.S << "\n"
-                << "FR: " << m_bulletConfig.FR << "\n"
-                << "FG: " << m_bulletConfig.FG << "\n"
-                << "FB: " << m_bulletConfig.FB << "\n"
-                << "OR: " << m_bulletConfig.OR << "\n"
-                << "OG: " << m_bulletConfig.OG << "\n"
-                << "OB: " << m_bulletConfig.OB << "\n"
-                << "OT: " << m_bulletConfig.OT << "\n"
-                << "V: " << m_bulletConfig.V << "\n"
-                << "L: " << m_bulletConfig.L << "\n";
+            // std::cout << "Loading Bullet config:\n"
+            //     << "SR: " << m_bulletConfig.SR << "\n"
+            //     << "CR: " << m_bulletConfig.CR << "\n"
+            //     << "S: " << m_bulletConfig.S << "\n"
+            //     << "FR: " << m_bulletConfig.FR << "\n"
+            //     << "FG: " << m_bulletConfig.FG << "\n"
+            //     << "FB: " << m_bulletConfig.FB << "\n"
+            //     << "OR: " << m_bulletConfig.OR << "\n"
+            //     << "OG: " << m_bulletConfig.OG << "\n"
+            //     << "OB: " << m_bulletConfig.OB << "\n"
+            //     << "OT: " << m_bulletConfig.OT << "\n"
+            //     << "V: " << m_bulletConfig.V << "\n"
+            //     << "L: " << m_bulletConfig.L << "\n";
         }
     }
     
     // set up window 
     m_window.create(sf::VideoMode(m_windowConfig.sW, m_windowConfig.sH), "GeometryWars Clone", m_windowConfig.FS);
     m_window.setFramerateLimit(m_windowConfig.FL);
-
+    //m_text.setPosition(10,10);
     ImGui::SFML::Init(m_window);
 
     spawnPlayer();
@@ -145,18 +144,32 @@ void Game::run()
         ImGui::SFML::Update(m_window, m_deltaClock.restart());
 
         sUserInput();
-        if(!m_paused){        
-            sEnemySpawner();
-            sMovement();
-            sCollision();
-            sLifespan();
+        if(!m_paused){       
+            if(m_runEnemySpawn)
+            {
+                sEnemySpawner();
+            }
+            if(m_runLifespan)
+            {
+               sLifespan();
+            }
+            if(m_runcollisions)
+            {
+                sCollision();
+            }
+            if(m_runMovement)
+            {
+                sMovement();
+            }
         }
+        sScore();
         sGUI();
-        sRender();
+        if(m_runRender)
+        {
+            sRender();
+        }
 
-        // incrememnt the current frame
-        // may need to be moved when pause implemented
-        m_currentFrame++;
+        ++m_currentFrame;
     }
 }
 
@@ -164,29 +177,24 @@ void Game::spawnPlayer()
 {
 
     auto entity = m_entities.addEntity("player");
-
     entity->cTransform = std::make_shared<CTransform>(Vec2 (m_windowConfig.sW/2 - m_playerConfig.SR, m_windowConfig.sH/2 - m_playerConfig.SR), Vec2 (0.0f, 0.0f), 0.0f);
-    
-    entity->cShape = std::make_shared<CShape>(m_playerConfig.SR, m_playerConfig.V, sf::Color(m_playerConfig.FR, m_playerConfig.FG, m_playerConfig.FB), sf::Color(m_playerConfig.OR, m_playerConfig.OG, m_playerConfig.OB), m_playerConfig.OT);
-
+    entity->cShape = std::make_shared<CShape>(m_playerConfig.SR, m_playerConfig.V, m_playerConfig.FR, m_playerConfig.FG, m_playerConfig.FB,128, sf::Color(m_playerConfig.OR, m_playerConfig.OG, m_playerConfig.OB), m_playerConfig.OT);
     entity->cCollision = std::make_shared<CCollision>(m_playerConfig.SR);
-
     entity->cInput = std::make_shared<CInput>();
 
     m_player = entity;
 }
-
 
 // spawn an enemy at a random position
 void Game::spawnEnemy()
 {
 
     int points = (rand() % (m_enemyConfig.VMAX - m_enemyConfig.VMIN + 1)) + m_enemyConfig.VMIN;
-
     auto enemy = m_entities.addEntity("enemy");
 
-    enemy->cShape = std::make_shared<CShape>(m_enemyConfig.SR, points,genRandRGB(),genRandRGB(),genRandRGB(),255,sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB),m_enemyConfig.OT);
+    enemy->cScore = std::make_shared<CScore>(points * 100);
 
+    enemy->cShape = std::make_shared<CShape>(m_enemyConfig.SR, points,genRandRGB(),genRandRGB(),genRandRGB(),255,sf::Color(m_enemyConfig.OR,m_enemyConfig.OG,m_enemyConfig.OB),m_enemyConfig.OT);
     enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
 
     int posX = (rand() % m_windowConfig.sW-m_enemyConfig.SR - m_enemyConfig.SR + 1) + m_enemyConfig.SR;
@@ -198,7 +206,7 @@ void Game::spawnEnemy()
 
     velocity *= speed;
 
-    enemy->cTransform = std::make_shared<CTransform>(Vec2(posX,posY),velocity,1);
+    enemy->cTransform = std::make_shared<CTransform>(Vec2(posX,posY),velocity,5);
 
     enemy->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.L * m_windowConfig.FL);
 
@@ -246,45 +254,105 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & target)
     bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.L * m_windowConfig.FL);
     
     bullet->cLifespan->remaining = bullet->cLifespan->total;
-
-    std::cout<< "bullet spawned with velocity: " << velocity.x << " , " <<  velocity.y << "\n";
 }
 
-void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity)
+void Game::spawnBullet(std::shared_ptr<Entity> entity, const float theta)
 {
-        // TODO: implement your own special weapon
+
+    auto bullet = m_entities.addEntity("bullet");
+    
+    bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
+    
+    bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SR,16,m_bulletConfig.FR,m_bulletConfig.FG,m_bulletConfig.FB, 255,sf::Color(m_bulletConfig.OR,m_bulletConfig.OG,m_bulletConfig.OB),m_bulletConfig.OT);
+    
+    Vec2 direction = Vec2(cos(theta), sin(theta));
+    direction *= m_bulletConfig.S;
+
+    bullet->cTransform = std::make_shared<CTransform>(m_player->cTransform->pos,direction,1);
+
+    bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.L * m_windowConfig.FL);
+    
+    bullet->cLifespan->remaining = bullet->cLifespan->total;
+}
+
+void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity,const Vec2 & target)
+{
+
+    if((m_currentFrame - m_lastSpecialWeaponTime) > 120)
+    {
+        float dy = target.y - entity->cTransform->pos.y;
+        float dx = target.x - entity->cTransform->pos.x;
+
+        float theta = atan2(dy,dx);
+
+        spawnBullet(entity, theta);
+        spawnBullet(entity, theta - deg2rad(10));
+        spawnBullet(entity, theta + deg2rad(10));
+
+        m_lastSpecialWeaponTime = m_currentFrame;
+
+        if(m_powerCirc) {
+            m_powerCirc->destroy();
+            m_powerCirc = nullptr;
+        }
+    }
+    else
+    {
+        if(!m_powerCirc){
+            auto powerCirc = m_entities.addEntity("powercircle");
+            float chargeProgress = (m_currentFrame - m_lastSpecialWeaponTime) / 120.0f;
+            float radius = chargeProgress * m_playerConfig.SR * 0.9f; // 90% of player radius at max
+            powerCirc->cShape = std::make_shared<CShape>(radius, 64, 0, 255, 255, 128, sf::Color::Yellow, 2);
+            powerCirc->cTransform = std::make_shared<CTransform>(m_player->cTransform->pos, Vec2(0,0), 0);
+            powerCirc->cLifespan = std::make_shared<CLifespan>(121); // Slightly more than charge time
+            m_powerCirc = powerCirc;
+        }
+        else
+        {
+            float chargeProgress = (m_currentFrame - m_lastSpecialWeaponTime) / 120.0f;
+            float radius = chargeProgress * m_playerConfig.SR * 0.9f;
+            m_powerCirc->cShape->circle.setRadius(radius);
+            m_powerCirc->cTransform->pos = m_player->cTransform->pos;
+            m_powerCirc->cShape->circle.setFillColor(sf::Color(0, 255, 255, 128 + (int)(chargeProgress * 127)));
+        }
+
+    }
+
+
 }
 
 void Game::sMovement()
 {
 
     //reset player velocity
-    m_player->cTransform->velocity.x = 0;
-    m_player->cTransform->velocity.y = 0;
 
     //player input-based movement:
     if(m_player->cInput->up && !m_player->cCollision->BColision.up)
     {
-        m_player->cTransform->velocity.y = -1 * m_playerConfig.S;
-
+        m_player->cTransform->pos.y -= m_playerConfig.S * m_deltaTime;
+        m_powerCirc->cTransform->pos.y = m_player->cTransform->pos.y;
     }
     if(m_player->cInput->down && !m_player->cCollision->BColision.down)
     {
-        m_player->cTransform->velocity.y = 1 * m_playerConfig.S;
+        m_player->cTransform->pos.y += m_playerConfig.S * m_deltaTime;
+        m_powerCirc->cTransform->pos.y = m_player->cTransform->pos.y;
     }
     if(m_player->cInput->right && !m_player->cCollision->BColision.right)
     {
-        m_player->cTransform->velocity.x = 1 * m_playerConfig.S;
+        m_player->cTransform->pos.x += m_playerConfig.S * m_deltaTime;
+        m_powerCirc->cTransform->pos.x = m_player->cTransform->pos.x;
+        
     }
     if(m_player->cInput->left && !m_player->cCollision->BColision.left)
     {
-        m_player->cTransform->velocity.x = -1 * m_playerConfig.S;
+        m_player->cTransform->pos.x -= m_playerConfig.S * m_deltaTime;
+        m_powerCirc->cTransform->pos.x = m_player->cTransform->pos.x;
     }
 
     // movement for all entities:
     for (auto e : m_entities.getEntities()){
 
-        if(e->cCollision && !(e->tag() == "player"))
+        if(e->cCollision && e->tag() != "player")
         {
             if(e->cCollision->BColision.up || e->cCollision->BColision.down)
             {
@@ -294,24 +362,18 @@ void Game::sMovement()
             {
                 e->cTransform->velocity.x *= -1;
             }
+
+            e->cTransform->pos.x += e->cTransform->velocity.x * m_deltaTime;
+            e->cTransform->pos.y += e->cTransform->velocity.y * m_deltaTime;
+
         }
 
-        e->cTransform->pos.x += e->cTransform->velocity.x * m_deltaTime;
-        e->cTransform->pos.y += e->cTransform->velocity.y * m_deltaTime;
+
     }
 }
 
 void Game::sLifespan()
 {
-    // TODO implement all lifespan functionality
-    //
-    // for all entities
-    //      if entity has no lifespan component, skip it
-    //      if entity has > 0 remaining lifespan, subtract 1
-    //      if it has lifespan and is alive
-    //              scale its alpha channel properly
-    //      if it has lifspan and its time is up
-    //              destroy the entity
 
     for(auto e : m_entities.getEntities())
     {
@@ -331,16 +393,13 @@ void Game::sLifespan()
 
 void Game::sCollision()
 {
-    // TODO: implement all proper collisions between entities
-    //          be sure ti use the collision radius, NOT the shape radius
-
     //screen border collission
     for( auto e : m_entities.getEntities())
     {
         if(e->cCollision)
         {
             //screen border colision
-            e->cCollision->ResetBcol();
+            e->cCollision->resetBcol();
 
             if (e->cTransform->pos.x - e->cCollision->radius <= 0)
             {
@@ -389,14 +448,15 @@ void Game::sCollision()
                 if((dx*dx + dy*dy) < (r1+r1)*(r1+r2))
                 {
                     m_player->destroy();
+                    m_score = 0;
                 }
             }
         }
     }
 
-    for(auto enemy : m_entities.getEntities("enemy"))
+    for(auto bullet : m_entities.getEntities("bullet"))
     {
-        for(auto bullet : m_entities.getEntities("bullet"))
+        for(auto enemy : m_entities.getEntities("enemy"))
         {
             float dx = (enemy->cTransform->pos.x - bullet->cTransform->pos.x);
             float dy = (enemy->cTransform->pos.y - bullet->cTransform->pos.y);
@@ -404,9 +464,11 @@ void Game::sCollision()
             float r2 = bullet->cCollision->radius;
             if((dx*dx + dy*dy) < (r1+r1)*(r1+r2))
             {
+                if(enemy->isActive()){
+                    m_score += enemy->cScore->score;
+                }
                 enemy->destroy();
                 bullet->destroy();
-                --m_enemyCount;
             }
         }
     }
@@ -414,12 +476,7 @@ void Game::sCollision()
 
 void Game::sEnemySpawner()
 {
-    // TODO: code which implemens enemy spawning should go here
-
-    // check how many frames since last enemy spawned
-    // if number of frames is greater the spawn interval spawn an enemy
-
-    if((m_currentFrame - m_lastEnemySpawnTime)> m_enemyConfig.SI)
+    if((m_currentFrame - m_lastEnemySpawnTime) > m_enemyConfig.SI)
     {
         spawnEnemy();
     }
@@ -430,6 +487,37 @@ void Game::sGUI()
     ImGui::Begin("Geometry Wars");
 
     ImGui::Text("Frametime: %.5f", m_deltaTime);
+
+    if(ImGui::CollapsingHeader("Systems"))
+    {
+        if(ImGui::Button("Movement"))
+        {
+            m_runMovement = !m_runMovement;
+        }
+        ImGui::SameLine();
+        ImGui::Text((m_runMovement)? "on" : "off");
+
+        if(ImGui::Button("Colision"))
+        {
+            m_runcollisions = !m_runcollisions;
+        }
+        ImGui::SameLine();
+        ImGui::Text((m_runcollisions)? "on" : "off");
+
+        if(ImGui::Button("EnemySpawn"))
+        {
+            m_runEnemySpawn = !m_runEnemySpawn;
+        }
+        ImGui::SameLine();
+        ImGui::Text((m_runEnemySpawn)? "on" : "off");
+
+        if(ImGui::Button("Lifespan"))
+        {
+            m_runLifespan = !m_runLifespan;
+        }
+        ImGui::SameLine();
+        ImGui::Text((m_runLifespan)? "on" : "off");
+    }
 
     if(ImGui::CollapsingHeader("Player menu")){
         ImGui::Text("Info:");
@@ -457,21 +545,15 @@ void Game::sRender()
 
     for(auto e : m_entities.getEntities())
     {
-        // set the position of the shape based on the entity's transform->pos
-        e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
-
-        // set the rotation of the shape based on the entity's transform-angle
-        e->cTransform->angle += 0.5f * m_deltaTime;
-        e->cShape->circle.rotate(e->cTransform ->angle);
-
-        //change alpha channel of those with lifespan according to their time remaining.
+        if (e->cTransform && e->cShape) {
+            e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
+            e->cShape->circle.setRotation(e->cTransform->angle += 5 * m_deltaTime);
+        }
         if(e->cLifespan)
         {
             float newAlphaVal = (static_cast<float>(e->cLifespan->remaining) / e->cLifespan->total) * 255.0f;
-            //std::cout<< "new alpha determined: " << e->cLifespan->remaining << "/" << e->cLifespan->total << "*255 = " << newAlphaVal << "\n";
             e->cShape->changeAlpha(newAlphaVal);
         }
-        // draw the entitys sf::CircleShape
         m_window.draw(e->cShape->circle);
     }
 
@@ -498,6 +580,7 @@ void Game::sRender()
         m_window.draw(pauseBox);
         m_window.draw(pauseText);
     }
+    m_window.draw(m_text);
   
     // draw the ui last
     ImGui::SFML::Render(m_window);
@@ -570,26 +653,28 @@ void Game::sUserInput()
 
             if ( event.mouseButton.button == sf::Mouse::Left)
             {
-                std::cout << "Left mouse Button clicked at (" << event.mouseButton.x << "," << event.mouseButton.y << ")\n";
-                // call spawnBullet here
                 m_player->cInput->shoot = true;
                 spawnBullet(m_player, Vec2(event.mouseButton.x, event.mouseButton.y));
             }
 
             if (event.mouseButton.button == sf::Mouse::Right)
             {
-                std::cout << "Right Mouse Button clicked at (" << event.mouseButton.x << "," << event.mouseButton.y << ")\n";
-                // call spawnSpecialWeapon here
+                spawnSpecialWeapon(m_player,Vec2(event.mouseButton.x, event.mouseButton.y));
             }
             
         }
     }
 }
 
+void Game::sScore()
+{
+    m_text.setString("Score: " + std::to_string(m_score));
+    m_window.draw(m_text);
+}
+
 float Game::genRandRGB()
 {
     float colorVal = rand() % 255;
-    //std::cout<< "genned colorVal: " << colorVal << "\n" << std::endl;
     return colorVal;
 }
 
@@ -598,4 +683,9 @@ int Game::genRandDir()
     int randval = rand() % 2 + 1; 
     int dir = (randval == 1)? 1 : -1;
     return dir;
+}
+
+float Game::deg2rad(float deg)
+{
+    return deg * M_PI / 180.0;
 }

@@ -61,7 +61,7 @@ public:
 
     BorderColision BColision;
 
-    void ResetBcol()
+    void resetBcol()
     {
         BColision.up = false;
         BColision.down = false;
