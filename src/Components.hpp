@@ -25,9 +25,13 @@ public:
     sf::CircleShape circle;
     float m_FR{}, m_FG{}, m_FB{};
     float m_alphaChannel = 0;
+    int   m_points{64};
+    float m_radius{};
+    sf::Color outlineColor;
+    float m_OT;
 
     CShape(float radius, int points,const float FR, const float FG, const float FB, float alphaChannel, const sf::Color & outline, float thickness)
-        : circle(radius, points), m_FR(FR), m_FG(FG), m_FB(FB), m_alphaChannel(alphaChannel) 
+        : circle(radius, points), m_FR(FR), m_FG(FG), m_FB(FB), m_alphaChannel(alphaChannel), m_points(points), m_radius(radius), outlineColor(outline), m_OT(thickness)
     {
         circle.setFillColor(sf::Color(m_FR,m_FG,m_FB,m_alphaChannel));
         circle.setOutlineColor(outline);
@@ -36,7 +40,7 @@ public:
     }
 
     CShape(float radius, int points,const sf::Color & fill, const sf::Color & outline, float thickness)
-        : circle(radius, points)
+        : circle(radius, points), m_points(points), m_radius(radius), outlineColor(outline), m_OT(thickness)
     {
         circle.setFillColor(fill);
         circle.setOutlineColor(outline);

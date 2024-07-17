@@ -219,26 +219,55 @@ void Game::spawnEnemy()
 
 void Game::spawnSmallEnemeis(std::shared_ptr<Entity> e)
 {
-    // TODO: spawn small enemies at the location of the input enemy e
 
-    // auto smallEnemy = m_entities.addEntity("smallenemy");
+    float baseAngle = deg2rad(360.0f/e->cShape->m_points);
+
+    float radius = e->cShape->m_radius/2;
+    int   points = e->cShape->m_points;
+    float FR = e->cShape->m_FR;
+    float FG = e->cShape->m_FG;
+    float FB = e->cShape->m_FB;
+    float alphaChannel = 255;
+    sf::Color outline = e->cShape->outlineColor;
+    float OT = e->cShape->m_OT;
+    int lifespan = m_enemyConfig.L;
+    int rotationAngle = e->cTransform->angle;
+    Vec2 pos = e->cTransform->pos;
+    int score = e->cScore->score*2;
+
+    for(int i = 0; i<e->cShape->m_points; i++){
+
+        float angle = baseAngle * i;
+        float radius = e->cShape->m_radius/2;
+        int   points = e->cShape->m_points;
+        float CR = m_enemyConfig.CR;
+
+        auto smallEnemy = m_entities.addEntity("smallenemy");
+        smallEnemy->cShape      = std::make_shared<CShape>(radius, points, FR,FG,FB, alphaChannel, outline, OT);
+        smallEnemy->cCollision  = std::make_shared<CCollision>(radius);
+        smallEnemy->cLifespan   = std::make_shared<CLifespan>(lifespan);
+        smallEnemy->cScore      = std::make_shared<CScore>(score);
+
+        //calculating the position of the spawn
+        //first of use the angle between the entity and the given angle to get a unit vector
+
+        Vec2 velocity(cos(angle), sin(angle));
+        velocity *= 10;
+        //move it 5 pixels from the entity in that directoin
+        //also set that to be its velocity like a burst in all directions
+
+        smallEnemy->cTransform = std::make_shared<CTransform>(pos,velocity, rotationAngle);
+        //add the angle, so for example if the enemy that was killed is a triangle, 360/3 will give 120, and this loop will run 3 times
+        // so first time its 120, next time it is 240 and then final time it goes to 360 so full coverage.
+    }
+
     
-    // smallEnemy->cLifespan = std::make_shared<CLifespan>(m_enemyConfig.L);
-
-    // when we create the smaller enemy, we have to read the values of the original enemy
-    // - spawn a number of small enemies equal to the vertices of the original enemy
-    // - set each small enemy to the same color as the original, half the size
-    // - small enemeis are worth double points of the original enemy
 }
 
 // spawns a bullet from a given entity to a target location
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & target)
 {
-    // TODO: implement the spawning of a bullet which travels toward target
-    //       - bullet speed is given as a scalar speed
-    //       - you must set the velocity by using formula in notes
-
     auto bullet = m_entities.addEntity("bullet");
     
     bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
@@ -291,32 +320,32 @@ void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity,const Vec2 & target
 
         m_lastSpecialWeaponTime = m_currentFrame;
 
-        if(m_powerCirc) {
-            m_powerCirc->destroy();
-            m_powerCirc = nullptr;
-        }
+        // if(m_powerCirc) {
+        //     m_powerCirc->destroy();
+        //     m_powerCirc = nullptr;
+        // }
     }
-    else
-    {
-        if(!m_powerCirc){
-            auto powerCirc = m_entities.addEntity("powercircle");
-            float chargeProgress = (m_currentFrame - m_lastSpecialWeaponTime) / 120.0f;
-            float radius = chargeProgress * m_playerConfig.SR * 0.9f; // 90% of player radius at max
-            powerCirc->cShape = std::make_shared<CShape>(radius, 64, 0, 255, 255, 128, sf::Color::Yellow, 2);
-            powerCirc->cTransform = std::make_shared<CTransform>(m_player->cTransform->pos, Vec2(0,0), 0);
-            powerCirc->cLifespan = std::make_shared<CLifespan>(121); // Slightly more than charge time
-            m_powerCirc = powerCirc;
-        }
-        else
-        {
-            float chargeProgress = (m_currentFrame - m_lastSpecialWeaponTime) / 120.0f;
-            float radius = chargeProgress * m_playerConfig.SR * 0.9f;
-            m_powerCirc->cShape->circle.setRadius(radius);
-            m_powerCirc->cTransform->pos = m_player->cTransform->pos;
-            m_powerCirc->cShape->circle.setFillColor(sf::Color(0, 255, 255, 128 + (int)(chargeProgress * 127)));
-        }
+    // else
+    // {
+    //     if(!m_powerCirc){
+    //         auto powerCirc = m_entities.addEntity("powercircle");
+    //         float chargeProgress = (m_currentFrame - m_lastSpecialWeaponTime) / 120.0f;
+    //         float radius = chargeProgress * m_playerConfig.SR * 0.9f; // 90% of player radius at max
+    //         powerCirc->cShape = std::make_shared<CShape>(radius, 64, 0, 255, 255, 128, sf::Color::Yellow, 2);
+    //         powerCirc->cTransform = std::make_shared<CTransform>(m_player->cTransform->pos, Vec2(0,0), 0);
+    //         powerCirc->cLifespan = std::make_shared<CLifespan>(121); // Slightly more than charge time
+    //         m_powerCirc = powerCirc;
+    //     }
+    //     else
+    //     {
+    //         float chargeProgress = (m_currentFrame - m_lastSpecialWeaponTime) / 120.0f;
+    //         float radius = chargeProgress * m_playerConfig.SR * 0.9f;
+    //         m_powerCirc->cShape->circle.setRadius(radius);
+    //         m_powerCirc->cTransform->pos = m_player->cTransform->pos;
+    //         m_powerCirc->cShape->circle.setFillColor(sf::Color(0, 255, 255, 128 + (int)(chargeProgress * 127)));
+    //     }
 
-    }
+    // }
 
 
 }
@@ -330,23 +359,19 @@ void Game::sMovement()
     if(m_player->cInput->up && !m_player->cCollision->BColision.up)
     {
         m_player->cTransform->pos.y -= m_playerConfig.S * m_deltaTime;
-        m_powerCirc->cTransform->pos.y = m_player->cTransform->pos.y;
     }
     if(m_player->cInput->down && !m_player->cCollision->BColision.down)
     {
         m_player->cTransform->pos.y += m_playerConfig.S * m_deltaTime;
-        m_powerCirc->cTransform->pos.y = m_player->cTransform->pos.y;
     }
     if(m_player->cInput->right && !m_player->cCollision->BColision.right)
     {
         m_player->cTransform->pos.x += m_playerConfig.S * m_deltaTime;
-        m_powerCirc->cTransform->pos.x = m_player->cTransform->pos.x;
         
     }
     if(m_player->cInput->left && !m_player->cCollision->BColision.left)
     {
         m_player->cTransform->pos.x -= m_playerConfig.S * m_deltaTime;
-        m_powerCirc->cTransform->pos.x = m_player->cTransform->pos.x;
     }
 
     // movement for all entities:
@@ -465,9 +490,25 @@ void Game::sCollision()
             if((dx*dx + dy*dy) < (r1+r1)*(r1+r2))
             {
                 if(enemy->isActive()){
+                    spawnSmallEnemeis(enemy);
                     m_score += enemy->cScore->score;
                 }
                 enemy->destroy();
+                bullet->destroy();
+            }
+        }
+        for(auto smallEnemy : m_entities.getEntities("smallenemy"))
+        {
+            float dx = (smallEnemy->cTransform->pos.x - bullet->cTransform->pos.x);
+            float dy = (smallEnemy->cTransform->pos.y - bullet->cTransform->pos.y);
+            float r1 = smallEnemy->cCollision->radius;
+            float r2 = bullet->cCollision->radius;
+            if((dx*dx + dy*dy) < (r1+r1)*(r1+r2))
+            {
+                if(smallEnemy->isActive()){
+                    m_score += smallEnemy->cScore->score;
+                }
+                smallEnemy->destroy();
                 bullet->destroy();
             }
         }
@@ -517,6 +558,13 @@ void Game::sGUI()
         }
         ImGui::SameLine();
         ImGui::Text((m_runLifespan)? "on" : "off");
+
+        if(ImGui::Button("Rotation"))
+        {
+            m_runRotate = !m_runRotate;
+        }
+        ImGui::SameLine();
+        ImGui::Text((m_runRotate)? "on" : "off");
     }
 
     if(ImGui::CollapsingHeader("Player menu")){
@@ -547,7 +595,10 @@ void Game::sRender()
     {
         if (e->cTransform && e->cShape) {
             e->cShape->circle.setPosition(e->cTransform->pos.x, e->cTransform->pos.y);
-            e->cShape->circle.setRotation(e->cTransform->angle += 5 * m_deltaTime);
+            if(m_runRotate)
+            {
+                rotate(e);
+            }
         }
         if(e->cLifespan)
         {
@@ -586,6 +637,11 @@ void Game::sRender()
     ImGui::SFML::Render(m_window);
 
     m_window.display();
+}
+
+void Game::rotate(std::shared_ptr<Entity> e)
+{
+    e->cShape->circle.setRotation(e->cTransform->angle += 5 * m_deltaTime);
 }
 
 void Game::sUserInput()

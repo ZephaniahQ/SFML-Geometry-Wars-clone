@@ -35,6 +35,7 @@ class Game
     bool                m_runLifespan   = true;
     bool                m_runEnemySpawn = true;
     bool                m_runRender     = true;
+    bool                m_runRotate     = true;
 
 
     std::shared_ptr<Entity>     m_player;
@@ -69,4 +70,5 @@ public:
     float genRandRGB();
     int genRandDir();
     float deg2rad(float deg);
+    void rotate(std::shared_ptr<Entity> e);
 };
