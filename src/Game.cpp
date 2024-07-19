@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <set>
 
 Game::Game(const std::string & config)
 {
@@ -115,9 +116,9 @@ void Game::init(const std::string & path)
     // set up window 
     m_window.create(sf::VideoMode(m_windowConfig.sW, m_windowConfig.sH), "GeometryWars Clone", m_windowConfig.FS);
     m_window.setFramerateLimit(m_windowConfig.FL);
-    //m_text.setPosition(10,10);
     ImGui::SFML::Init(m_window);
 
+    createCheckerBackground();
     spawnPlayer();
 }
 
@@ -529,67 +530,410 @@ void Game::sGUI()
 
     ImGui::Text("Frametime: %.5f", m_deltaTime);
 
-    if(ImGui::CollapsingHeader("Systems"))
+    if(ImGui::BeginTabBar("Systems"))
     {
-        if(ImGui::Button("Movement"))
-        {
-            m_runMovement = !m_runMovement;
-        }
-        ImGui::SameLine();
-        ImGui::Text((m_runMovement)? "on" : "off");
 
-        if(ImGui::Button("Colision"))
+        if(ImGui::BeginTabItem("Systems"))
         {
-            m_runcollisions = !m_runcollisions;
-        }
-        ImGui::SameLine();
-        ImGui::Text((m_runcollisions)? "on" : "off");
 
-        if(ImGui::Button("EnemySpawn"))
-        {
-            m_runEnemySpawn = !m_runEnemySpawn;
-        }
-        ImGui::SameLine();
-        ImGui::Text((m_runEnemySpawn)? "on" : "off");
+            if(ImGui::CollapsingHeader("Movement System"))
+            {
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Text("Status : %s",(m_runMovement)? "on" : "off");
+                ImGui::Spacing();
+                if(ImGui::Button((m_runMovement)? "Turn off" : "Turn on"))
+                {
+                    m_runMovement = !m_runMovement;
+                }
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
 
-        if(ImGui::Button("Lifespan"))
-        {
-            m_runLifespan = !m_runLifespan;
-        }
-        ImGui::SameLine();
-        ImGui::Text((m_runLifespan)? "on" : "off");
+                ImGui::BeginGroup();
 
-        if(ImGui::Button("Rotation"))
-        {
-            m_runRotate = !m_runRotate;
+                ImGui::Text("Enemy Speed:");
+                ImGui::Spacing();
+                ImGui::Text("Min");
+                ImGui::SameLine();
+                ImGui::InputFloat("##Min enemy speed", &(this->getEnemyconfig().SMIN),1);
+                ImGui::Text("Max");
+                ImGui::SameLine();
+                ImGui::InputFloat("##Max enemy speed", &(this->getEnemyconfig().SMAX),1);
+                
+                ImGui::EndGroup();
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::BeginGroup();
+                
+                ImGui::Spacing();
+                ImGui::Text("Player Speed:");
+                ImGui::Spacing();
+                ImGui::InputFloat("##Max player speed", &(this->getPlayerconfig().S),100);
+                
+                ImGui::EndGroup();
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+            }
+
+            if(ImGui::CollapsingHeader("Colision System"))
+            {
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Text("Status: %s", (m_runcollisions)? "on" : "off");
+                ImGui::Spacing();
+                if(ImGui::Button((m_runcollisions)? "Turn off" : "Turn on"))
+                {
+                    m_runcollisions = !m_runcollisions;
+                }
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Text("Colision Radius: ");
+
+                ImGui::Spacing();
+
+                ImGui::Text("Player: ");
+                ImGui::SameLine();
+                ImGui::InputInt("## Player CR", &(this->getPlayerconfig().CR), 5);
+
+                ImGui::Spacing();
+
+                ImGui::Text("Enemy:  ");
+                ImGui::SameLine();
+                ImGui::InputInt("## Enemy CR", &(this->getEnemyconfig().CR), 5);
+
+                ImGui::Spacing();
+
+                ImGui::TextColored(ImVec4(0,1,1,1), "change will be applied on entities\nspawned after the change");
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+            }
+
+
+            if(ImGui::CollapsingHeader("Enemy Spawn"))
+            {
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Text("Status: %s", (m_runEnemySpawn)? "on" : "off");
+                ImGui::Spacing();
+                if(ImGui::Button((m_runEnemySpawn)? "Turn off" : "turn on"))
+                {
+                    m_runEnemySpawn = !m_runEnemySpawn;
+                }
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Text("Spawn Interval (frames):");
+                ImGui::Spacing();
+                ImGui::SliderInt("## enemy spawn interval",  &(this->getEnemyconfig().SI), 15, 120);
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+            }
+
+            if(ImGui::CollapsingHeader("Lifespan System"))
+            {
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Text("Status: %s", (m_runLifespan)? "on" : "off");
+                ImGui::Spacing();
+                if(ImGui::Button((m_runLifespan)? "Turn off" : "turn on"))
+                {
+                    m_runLifespan = !m_runLifespan;
+                }
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Text("Lifespan (frames):");
+                ImGui::SliderInt("## enemy lifespan", &(this->getEnemyconfig().L), 60,5000);
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+            }
+
+            if(ImGui::CollapsingHeader("Rotation System"))
+            {
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Text("Status: %s", (m_runRotate)? "on" : "off");
+                ImGui::Spacing();
+
+                if(ImGui::Button((m_runLifespan)? "Turn off" : "turn on"))
+                {
+                    m_runRotate = !m_runRotate;
+                }
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+
+                ImGui::Text("Rotation angle: ");
+                ImGui::Spacing();
+                ImGui::InputFloat("## rotation angle", &(this->getRotationAngle()), 5, 10);
+
+                ImGui::Spacing();
+
+                ImGui::TextColored(ImVec4(0,1,1,1), "Entity is rotated by this angle each frame\ngreater value = faster rotation");
+
+                ImGui::Spacing();
+                ImGui::Separator();
+                ImGui::Spacing();
+            }
+
+
+            ImGui::EndTabItem();
         }
-        ImGui::SameLine();
-        ImGui::Text((m_runRotate)? "on" : "off");
+
+        if(ImGui::BeginTabItem("Entity Manager"))
+        {
+            if(ImGui::CollapsingHeader("Player")){
+                ImGui::Text("Info:");
+                ImGui::Text("ID: ");
+                ImGui::SameLine();
+                ImGui::Text(std::string(std::to_string(m_player->id())).c_str());
+                
+                ImGui::Text("Position:\n X: %.2f Y: %.2f", m_player->cTransform->pos.x,m_player->cTransform->pos.y);
+                ImGui::Spacing();
+                if(ImGui::Button("Kill Player"))
+                {
+                    m_player->destroy();
+                }
+            }
+
+            if(ImGui::CollapsingHeader("Enemies"))
+            {
+                EntityVec eVec = m_entities.getEntities("enemy");
+
+                if(ImGui::Button("Manual Spawn"))
+                {
+                    spawnEnemy();
+                }
+
+                for (size_t i = 0; i < eVec.size(); ++i)
+                {
+                    auto& e = eVec[i];
+                    if(e->isActive())
+                    {
+                        ImGui::PushID(e->id());
+
+                        ImGui::BeginChild("EntityChild", ImVec2(0, 32), true, ImGuiWindowFlags_NoScrollbar);
+                        ImGui::BeginGroup();
+
+
+                        ImVec4 buttonColor = { e->cShape->m_FR/ 255.0f, 
+                                            e->cShape->m_FG/ 255.0f,                            
+                                            e->cShape->m_FB/ 255.0f,                            
+                                            e->cShape->m_alphaChannel/ 255.0f                        
+                                            }; 
+                                            
+                        //ImVec2 buttonSize = ImVec2(28, 28); // Square button
+
+                        ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonColor.x + 0.1f, buttonColor.y + 0.1f, buttonColor.z + 0.1f, buttonColor.w));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonColor.x - 0.1f, buttonColor.y - 0.1f, buttonColor.z - 0.1f, buttonColor.w));
+
+                        if (ImGui::Button("D"))
+                        {
+                            e->destroy();
+                        }
+
+                        ImGui::PopStyleColor(3);
+                        ImGui::SameLine();
+                        float posX = e->cTransform->pos.x;
+                        float posY = e->cTransform->pos.y;
+                        ImGui::Text("%s %d (%.2f , %.2f)", e->tag().c_str(), e->id(), posX, posY);
+
+                        ImGui::EndGroup();
+                        ImGui::EndChild();
+
+                        ImGui::PopID();
+                    }
+                }
+            }
+
+            if(ImGui::CollapsingHeader("Small Enemeies"))
+            {
+                EntityVec eVec = m_entities.getEntities("smallenemy");
+
+                for (size_t i = 0; i < eVec.size(); ++i)
+                {
+                    auto& e = eVec[i];
+                    if(e->isActive())
+                    {
+                        ImGui::PushID(e->id());
+
+                        ImGui::BeginChild("EntityChild", ImVec2(0, 32), true, ImGuiWindowFlags_NoScrollbar);
+                        ImGui::BeginGroup();
+
+
+                        ImVec4 buttonColor = { e->cShape->m_FR/ 255.0f, 
+                                            e->cShape->m_FG/ 255.0f,                            
+                                            e->cShape->m_FB/ 255.0f,                            
+                                            e->cShape->m_alphaChannel/ 255.0f                        
+                                            }; 
+                                            
+                        //ImVec2 buttonSize = ImVec2(28, 28); // Square button
+
+                        ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonColor.x + 0.1f, buttonColor.y + 0.1f, buttonColor.z + 0.1f, buttonColor.w));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonColor.x - 0.1f, buttonColor.y - 0.1f, buttonColor.z - 0.1f, buttonColor.w));
+
+                        if (ImGui::Button("D"))
+                        {
+                            e->destroy();
+                        }
+
+                        ImGui::PopStyleColor(3);
+                        ImGui::SameLine();
+                        float posX = e->cTransform->pos.x;
+                        float posY = e->cTransform->pos.y;
+                        ImGui::Text("%s %d (%.0f , %.0f)", e->tag().c_str(), e->id(), posX, posY);
+
+                        ImGui::EndGroup();
+                        ImGui::EndChild();
+
+                        ImGui::PopID();
+                    }
+                }
+            }
+
+            if(ImGui::CollapsingHeader("Bullets"))
+            {
+                EntityVec eVec = m_entities.getEntities("bullet");
+
+                for (size_t i = 0; i < eVec.size(); ++i)
+                {
+                    auto& e = eVec[i];
+                    if(e->isActive())
+                    {
+                        ImGui::PushID(e->id());
+
+                        ImGui::BeginChild("EntityChild", ImVec2(0, 32), true, ImGuiWindowFlags_NoScrollbar);
+                        ImGui::BeginGroup();
+
+
+                        ImVec4 buttonColor = { e->cShape->m_FR/ 255.0f, 
+                                            e->cShape->m_FG/ 255.0f,                            
+                                            e->cShape->m_FB/ 255.0f,                            
+                                            e->cShape->m_alphaChannel/ 255.0f                        
+                                            }; 
+                                            
+                        //ImVec2 buttonSize = ImVec2(28, 28); // Square button
+
+                        ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonColor.x + 0.1f, buttonColor.y + 0.1f, buttonColor.z + 0.1f, buttonColor.w));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonColor.x - 0.1f, buttonColor.y - 0.1f, buttonColor.z - 0.1f, buttonColor.w));
+
+                        if (ImGui::Button("D"))
+                        {
+                            e->destroy();
+                        }
+
+                        ImGui::PopStyleColor(3);
+                        ImGui::SameLine();
+                        float posX = e->cTransform->pos.x;
+                        float posY = e->cTransform->pos.y;
+                        ImGui::Text("%s %d (%.0f , %.0f)", e->tag().c_str(), e->id(), posX, posY);
+
+                        ImGui::EndGroup();
+                        ImGui::EndChild();
+
+                        ImGui::PopID();
+                    }
+                }
+            }
+
+            if(ImGui::CollapsingHeader("All Entities"))
+            {
+                EntityVec eVec = m_entities.getEntities();
+
+                for (size_t i = 0; i < eVec.size(); ++i)
+                {
+                    auto& e = eVec[i];
+                    if(e->isActive())
+                    {
+                        ImGui::PushID(e->id());
+
+                        ImGui::BeginChild("EntityChild", ImVec2(0, 32), true, ImGuiWindowFlags_NoScrollbar);
+                        ImGui::BeginGroup();
+
+
+                        ImVec4 buttonColor = { e->cShape->m_FR/ 255.0f, 
+                                            e->cShape->m_FG/ 255.0f,                            
+                                            e->cShape->m_FB/ 255.0f,                            
+                                            e->cShape->m_alphaChannel/ 255.0f                        
+                                            }; 
+                                            
+                        //ImVec2 buttonSize = ImVec2(28, 28); // Square button
+
+                        ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonColor.x + 0.1f, buttonColor.y + 0.1f, buttonColor.z + 0.1f, buttonColor.w));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonColor.x - 0.1f, buttonColor.y - 0.1f, buttonColor.z - 0.1f, buttonColor.w));
+
+                        if (ImGui::Button("D"))
+                        {
+                            e->destroy();
+                        }
+
+                        ImGui::PopStyleColor(3);
+                        ImGui::SameLine();
+                        float posX = e->cTransform->pos.x;
+                        float posY = e->cTransform->pos.y;
+                        ImGui::Text("%s %d (%.0f , %.0f)", e->tag().c_str(), e->id(), posX, posY);
+
+                        ImGui::EndGroup();
+                        ImGui::EndChild();
+
+                        ImGui::PopID();
+                    }
+                }
+            }
+
+            ImGui::EndTabItem();
+        }
+
+
+
+
+        ImGui::EndTabBar();
     }
 
-    if(ImGui::CollapsingHeader("Player menu")){
-        ImGui::Text("Info:");
-        ImGui::Text("Position:\n X: %.2f Y: %.2f", m_player->cTransform->pos.x,m_player->cTransform->pos.y);
-        ImGui::Text("Velocity:\n X: %.2f Y: %.2f", m_player->cTransform->velocity.x,m_player->cTransform->velocity.y);
-        ImGui::Spacing();
-        if(ImGui::Button("Kill Player"))
-        {
-            m_player->destroy();
-        }
-    }
-
-    if(ImGui::CollapsingHeader("Enemy Menu")){
-        if(ImGui::Button("Add enemy"))
-        {
-            spawnEnemy();
-        }
-    }
     ImGui::End();
 }
 
 void Game::sRender()
 {
     m_window.clear();
+
+    // Draw background
+    for (const auto& square : m_background)
+    {
+        m_window.draw(square);
+    }
 
     for(auto e : m_entities.getEntities())
     {
@@ -641,7 +985,7 @@ void Game::sRender()
 
 void Game::rotate(std::shared_ptr<Entity> e)
 {
-    e->cShape->circle.setRotation(e->cTransform->angle += 5 * m_deltaTime);
+    e->cShape->circle.setRotation(e->cTransform->angle += m_rotationAngle * m_deltaTime);
 }
 
 void Game::sUserInput()
@@ -726,6 +1070,32 @@ void Game::sScore()
 {
     m_text.setString("Score: " + std::to_string(m_score));
     m_window.draw(m_text);
+}
+
+void Game::createCheckerBackground()
+{
+    const int squareSize = 20; // Size of each checker square
+    const sf::Color color1(10, 10, 10);  // Dark gray
+    const sf::Color color2(30, 30, 30);  // Slightly lighter gray
+
+    m_background.clear();
+
+    for (int y = 0; y < m_windowConfig.sH; y += squareSize)
+    {
+        for (int x = 0; x < m_windowConfig.sW; x += squareSize)
+        {
+            sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
+            square.setPosition(x, y);
+            
+            // Alternate colors based on position
+            if ((x / squareSize + y / squareSize) % 2 == 0)
+                square.setFillColor(color1);
+            else
+                square.setFillColor(color2);
+            
+            m_background.push_back(square);
+        }
+    }
 }
 
 float Game::genRandRGB()

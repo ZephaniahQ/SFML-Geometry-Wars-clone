@@ -26,6 +26,7 @@ class Game
     float               m_deltaTime;
     int                 m_score         = 0;
     int                 m_currentFrame  = 0;
+    float               m_rotationAngle = 5;
 
     bool                m_running       = false;
     bool                m_paused        = false;
@@ -36,6 +37,8 @@ class Game
     bool                m_runEnemySpawn = true;
     bool                m_runRender     = true;
     bool                m_runRotate     = true;
+
+    std::vector<sf::RectangleShape> m_background;
 
 
     std::shared_ptr<Entity>     m_player;
@@ -56,6 +59,7 @@ public:
     void spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & target);
     void spawnBullet(std::shared_ptr<Entity> entity, const float theta);
     void spawnSpecialWeapon(std::shared_ptr<Entity> entity, const Vec2& target);
+    void createCheckerBackground();
 
     void sMovement();
     void sLifespan();
@@ -71,4 +75,20 @@ public:
     int genRandDir();
     float deg2rad(float deg);
     void rotate(std::shared_ptr<Entity> e);
+
+    PlayerConfig & getPlayerconfig()
+    {
+        return m_playerConfig;
+    }
+
+    EnemyConfig & getEnemyconfig()
+    {
+        return m_enemyConfig;
+    }
+
+    float & getRotationAngle()
+    {
+        return m_rotationAngle;
+    }
+
 };
